@@ -23,13 +23,13 @@ const assiginedOrigin = [
 ConnectToBackend();
 
 app.use(express.json());
-app.use('/auth', authRoute);
-app.use('/wallet', walletRoute);
 app.use(cors({
     origin: assiginedOrigin, // Allow requests from this origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
     credentials: true, // If your requests include credentials like cookies
 }));
+app.use('/auth', authRoute);
+app.use('/wallet', walletRoute);
 
 
 app.get('/', (req, res) => {

@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import findToken from '../middleware/findToken.js';
-import Wallet from '../models/walletModel.js';
+import Wallet from '../models/WalletModel.js';
 
 const router = express.Router();
 
