@@ -14,7 +14,7 @@ const login = async (body) => {
     }
 
     const data = await response.json();
-    localStorage.setItem('user', JSON.stringify(data.data));
+    localStorage.setItem('user', JSON.stringify(data.token));
     return data;
   } catch (error) {
     console.error('Login error:', error);
@@ -23,7 +23,7 @@ const login = async (body) => {
 };
 
 const signup = async (body) => {
-  const url = '/auth/signup';
+  const url = '/auth/sigin';
   try {
     const response = await fetch(url, {
       method: 'POST',

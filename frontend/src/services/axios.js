@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:8080/api/v1';
+const baseURL = 'https://wallet-dapp-p0r3.onrender.com/';
 
 const request = async (endpoint, options = {}) => {
   try {

@@ -28,32 +28,32 @@ export default function LoginForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
     navigate('/')
-    // AuthService.login(formValues)
-    //   .then((response) => {
-    //     navigate('/');
-    //   })
-    //   .catch((error) => {
-    //     if (error.response?.data?.errors) {
-    //       error.response?.data?.errors.map((e) => enqueueSnackbar(e.message, { variant: 'error' }));
-    //     } else if (error.response?.data?.message) {
-    //       enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
-    //     } else {
-    //       enqueueSnackbar(error.message, { variant: 'error' });
-    //     }
-    //   });
+    AuthService.login(formValues)
+      .then((response) => {
+        navigate('/');
+      })
+      .catch((error) => {
+        if (error.response?.data?.errors) {
+          error.response?.data?.errors.map((e) => enqueueSnackbar(e.message, { variant: 'error' }));
+        } else if (error.response?.data?.message) {
+          enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
+        } else {
+          enqueueSnackbar(error.message, { variant: 'error' });
+        }
+      });
   };
 
   return (
     <>
       <Stack spacing={3}>
         <TextField
-          id="username"
-          name="username"
-          label="Username"
-          autoComplete="username"
+          id="email"
+          name="email"
+          label="Email"
+          autoComplete="email"
           required
           autoFocus
-          value={formValues.username}
+          value={formValues.email}
           onChange={handleInputChange}
         />
         <TextField

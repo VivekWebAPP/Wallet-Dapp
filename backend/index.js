@@ -17,6 +17,7 @@ const assiginedOrigin = [
     'http://localhost:3003',
     'http://localhost:3004',
     'http://localhost:3005',
+    'https://wallet-dapp-p0r3.onrender.com'
 ]
 
 
