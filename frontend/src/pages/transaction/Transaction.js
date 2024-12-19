@@ -1,3 +1,9 @@
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js"
 import {
   Card,
   Container,
@@ -25,12 +31,9 @@ import TransactionListHead from './TransactionListHead';
 
 const TABLE_HEAD = [
   { id: 'id', label: 'Id', alignRight: false, firstColumn: true },
-  { id: 'fromWallet', label: 'Sender', alignRight: false },
-  { id: 'toWallet', label: 'Receiver', alignRight: false },
-  { id: 'amount', label: 'Amount', alignRight: true },
-  { id: 'description', label: 'Description', alignRight: false },
-  { id: 'createdAt', label: 'Time of Transaction', alignRight: false },
-  { id: 'type', label: 'Type', alignRight: false },
+  { id: 'signature', label: 'Signature', alignRight: false },
+  { id: 'time', label: 'Time', alignRight: true },
+  { id: 'slot', label: 'Slot', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -42,6 +45,8 @@ export default function Transaction() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [data, setData] = useState([]);
   const navigate = useNavigate();
+  const wallet = useWallet();
+  const { connection } = useConnection()
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -50,6 +55,8 @@ export default function Transaction() {
   const handleCloseMenu = () => {
     setOpen(null);
   };
+
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -63,27 +70,51 @@ export default function Transaction() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   useEffect(() => {
-    fetchData();
+    fetchData(wallet.publicKey,10);
   }, []);
 
-  const fetchData = () => {
-    const userId = AuthService.getCurrentUser()?.id;
-    HttpService.getWithAuth(`/transactions/users/${userId}`)
-      .then((response) => {
-        setData(response.data.content);
-      })
-      .catch((error) => {
-        if (error?.response?.status === 401) {
-          navigate('/login');
-        } else if (error.response?.data?.errors) {
-          error.response?.data?.errors.map((e) => enqueueSnackbar(e.message, { variant: 'error' }));
-        } else if (error.response?.data?.message) {
-          enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
-        } else {
-          enqueueSnackbar(error.message, { variant: 'error' });
-        }
-      });
+  const fetchData = async (address, numTx) => {
+    const pubKey = new PublicKey(address);
+    const transactionList = await connection.getSignaturesForAddress(pubKey, { limit: numTx }).then((response) => {
+      setData(response);
+    })
+    .catch((error) => {
+      if (error?.response?.status === 401) {
+        navigate('/login');
+      } else if (error.response?.data?.errors) {
+        error.response?.data?.errors.map((e) => enqueueSnackbar(e.message, { variant: 'error' }));
+      } else if (error.response?.data?.message) {
+        enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
+      } else {
+        enqueueSnackbar(error.message, { variant: 'error' });
+      }
+    });
+    // transactionList.forEach((transaction, i) => {
+    //   const date = new Date(transaction.blockTime * 1000);
+    //   console.log(`Transaction No: ${i + 1}`);
+    //   console.log(`Signature: ${transaction.signature}`);
+    //   console.log(`Time: ${date}`);
+    //   console.log(`Status: ${transaction.confirmationStatus}`);
+    //   console.log(("-").repeat(20));
+    // });
+    // const userId = AuthService.getCurrentUser()?.id;
+    // HttpService.getWithAuth(`/transactions/users/${userId}`)
+    //   .then((response) => {
+    //     setData(response.data.content);
+    //   })
+    //   .catch((error) => {
+    //     if (error?.response?.status === 401) {
+    //       navigate('/login');
+    //     } else if (error.response?.data?.errors) {
+    //       error.response?.data?.errors.map((e) => enqueueSnackbar(e.message, { variant: 'error' }));
+    //     } else if (error.response?.data?.message) {
+    //       enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
+    //     } else {
+    //       enqueueSnackbar(error.message, { variant: 'error' });
+    //     }
+    //   });
   };
+
 
   return (
     <>
@@ -103,22 +134,19 @@ export default function Transaction() {
                 <TransactionListHead headLabel={TABLE_HEAD} />
                 <TableBody>
                   {data &&
-                    data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { id, amount, description, createdAt, fromWallet, toWallet, type, status } = row;
-                      const selectedRecord = selected.indexOf(id) !== -1;
+                    data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row,index) => {
+                      const { id, blockTime, signature, slot, confirmationStatus } = row;
+                      const selectedRecord = selected.indexOf(index) !== -1;
                       return (
                         <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedRecord}>
                           <TableCell align="left" sx={{ paddingLeft: 5 }}>
-                            {id}
+                            {index}
                           </TableCell>
-                          <TableCell align="left">{`${fromWallet.user.firstName} ${fromWallet.user.lastName}`}</TableCell>
-                          <TableCell align="left">{`${toWallet.user.firstName} ${toWallet.user.lastName}`}</TableCell>
-                          <TableCell align="right">{amount}</TableCell>
-                          <TableCell align="left">{description}</TableCell>
-                          <TableCell align="left">{createdAt}</TableCell>
-                          <TableCell align="left">{type.name}</TableCell>
+                          <TableCell align="left">{`${signature}`}</TableCell>
+                          <TableCell align="left">{`${new Date(blockTime * 1000)}`}</TableCell>
+                          <TableCell align="left">{slot}</TableCell>
                           <TableCell align="left">
-                            <Label color={status === 'SUCCESS' ? 'success' : 'warning'}>{sentenceCase(status)}</Label>
+                            <Label color={confirmationStatus === "finalized" ? 'success' : 'warning'}>{sentenceCase(confirmationStatus)}</Label>
                           </TableCell>
                           <TableCell align="right" width="20">
                             <IconButton size="large" color="inherit" onClick={handleOpenMenu}>

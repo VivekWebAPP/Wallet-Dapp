@@ -29,7 +29,7 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'balance', label: 'Balance', alignRight: false },
   { id: 'userId', label: 'User', alignRight: false },
-  { id: 'iban', label: 'IBAN', alignRight: false },
+  { id: 'publicAddress', label: 'Public Address', alignRight: false },
   { id: '' },
 ];
 
@@ -65,9 +65,9 @@ export default function Wallet() {
 
   const fetchData = () => {
     const userId = AuthService.getCurrentUser()?.id;
-    HttpService.getWithAuth(`/wallets/users/${userId}`)
+    HttpService.getWithAuth(`https://wallet-dapp-p0r3.onrender.com/wallet/allWallet`)
       .then((response) => {
-        setData(response.data);
+        setData(response.wallet);
       })
       .catch((error) => {
         if (error?.response?.status === 401) {
@@ -108,17 +108,17 @@ export default function Wallet() {
                 <TableBody>
                   {data &&
                     data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { id, name, balance, user, iban } = row;
+                      const { id, name, balance, user, publicAddress } = row;
                       const selectedRecord = selected.indexOf(name) !== -1;
                       return (
-                        <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedRecord}>
+                        <TableRow hover key={row._id} tabIndex={-1} role="checkbox" selected={selectedRecord}>
                           <TableCell align="left" sx={{ paddingLeft: 5 }}>
-                            {id}
+                            {row._id}
                           </TableCell>
                           <TableCell align="left">{name}</TableCell>
                           <TableCell align="left">{balance}</TableCell>
-                          <TableCell align="left">{user.fullName}</TableCell>
-                          <TableCell align="left">{iban}</TableCell>
+                          <TableCell align="left">{user}</TableCell>
+                          <TableCell align="left">{publicAddress}</TableCell>
                           <TableCell align="right">
                             <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
                               <Iconify icon={'eva:more-vertical-fill'} />

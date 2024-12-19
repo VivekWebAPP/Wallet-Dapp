@@ -1,24 +1,28 @@
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import {
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, Container, Grid, Stack, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
-import AuthService from '../../services/AuthService';
 import HttpService from '../../services/HttpService';
 
 export default function NewWallet() {
   const defaultValues = {
     name: '',
+    publicAddress: '',
     balance: '',
-    iban: '',
-    email: '',
-    userId: AuthService.getCurrentUser()?.id,
   };
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [formValues, setFormValues] = useState(defaultValues);
+  const [balance, setBalance] = useState(0);
+  const wallet = useWallet();
+  const { connection } = useConnection();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -28,9 +32,20 @@ export default function NewWallet() {
     });
   };
 
+  async function getBalance() {
+    if (wallet.publicKey) {
+      const balance = await connection.getBalance(wallet.publicKey);
+      setBalance(balance / LAMPORTS_PER_SOL);
+    }
+  }
+
+  useEffect(() => {
+    getBalance();
+  }, []);
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    HttpService.postWithAuth('/wallets', formValues)
+    HttpService.postWithAuth('https://wallet-dapp-p0r3.onrender.com/wallet/createNewWallet', formValues.name, formValues.publicAddress || wallet.publicKey, formValues.balance || balance)
       .then((response) => {
         enqueueSnackbar('Wallet created successfully', { variant: 'success' });
         navigate('/wallets');
@@ -71,12 +86,12 @@ export default function NewWallet() {
                 onChange={handleInputChange}
               />
               <TextField
-                id="iban"
-                name="iban"
-                label="IBAN"
-                autoComplete="iban"
+                id="publicAddress"
+                name="publicAddress"
+                label="publicAddress"
+                autoComplete="publicAddress"
                 required
-                value={formValues.iban}
+                value={wallet.publicKey || formValues.publicAddress}
                 onChange={handleInputChange}
               />
               <TextField
@@ -85,7 +100,7 @@ export default function NewWallet() {
                 label="Balance"
                 autoComplete="balance"
                 required
-                value={formValues.balance}
+                value={balance || formValues.balance}
                 onChange={handleInputChange}
               />
             </Stack>

@@ -1,3 +1,4 @@
+import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Container, Grid, Typography } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import { AppWidgetSummary } from '../../sections/@dashboard/app';
@@ -18,6 +19,7 @@ export default function Dashboard() {
             <Typography variant="body2" sx={{ my: 2 }}>
               (*) based on mock data
             </Typography>
+            <WalletMultiButton />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary title="Users" total={253000} color="warning" icon={'ant-design:user-outlined'} />
@@ -37,6 +39,9 @@ export default function Dashboard() {
               color="error"
               icon={'ant-design:euro-outlined'}
             />
+            <Typography variant="body2" sx={{ my: 5 }}>
+              <WalletDisconnectButton />
+            </Typography>
           </Grid>
         </Grid>
       </Container>

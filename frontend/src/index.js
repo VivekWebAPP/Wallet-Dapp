@@ -27,8 +27,6 @@ root.render(
   <ConnectionProvider endpoint={'https://api.devnet.solana.com'}>
     <WalletProvider wallets={[]} autoConnect>
       <WalletModalProvider>
-        <WalletMultiButton />
-        <WalletDisconnectButton />
         <ContextProvider>
           <HelmetProvider>
             <BrowserRouter>

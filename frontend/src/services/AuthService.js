@@ -1,5 +1,5 @@
 const login = async (body) => {
-  const url = '/auth/login';
+  const url = 'https://wallet-dapp-p0r3.onrender.com/auth/login';
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -23,7 +23,7 @@ const login = async (body) => {
 };
 
 const signup = async (body) => {
-  const url = '/auth/sigin';
+  const url = 'https://wallet-dapp-p0r3.onrender.com/auth/sigin';
   try {
     const response = await fetch(url, {
       method: 'POST',
